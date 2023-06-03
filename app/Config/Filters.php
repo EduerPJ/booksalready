@@ -29,11 +29,18 @@ class Filters extends BaseConfig
      */
     public array $globals = [
         'before' => [
+            'session' => [
+                'except' => [
+                    'login*',
+                    'register',
+                    'auth/a/*',
+                ],
+            ],
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
         ],
-        'after' => [
+        'after'  => [
             'toolbar',
             // 'honeypot',
             // 'secureheaders',
@@ -60,5 +67,11 @@ class Filters extends BaseConfig
      * Example:
      * 'isLoggedIn' => ['before' => ['account/*', 'profiles/*']]
      */
-    public array $filters = [];
+    public array $filters = [
+        'auth-rates' => [
+            'before' => [
+                'login*', 'register', 'auth/*'
+            ]
+        ]
+    ];
 }
