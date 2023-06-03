@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\GenderModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class Gender extends ResourceController
@@ -11,9 +12,10 @@ class Gender extends ResourceController
      *
      * @return mixed
      */
-    public function index()
-    {
-        //
+    public function index() {
+        $model = new GenderModel();
+        $data  = $model->orderBy('id', 'DESC')->findAll();
+        return $this->respond($data);
     }
 
     /**
@@ -21,19 +23,13 @@ class Gender extends ResourceController
      *
      * @return mixed
      */
-    public function show($id = null)
-    {
-        //
-    }
-
-    /**
-     * Return a new resource object, with default properties
-     *
-     * @return mixed
-     */
-    public function new()
-    {
-        //
+    public function show($id = null) {
+        $model = new GenderModel();
+        $data  = $model->where('id', $id)->first();
+        if (empty($data)) {
+            return $this->failNotFound('No gender found');
+        }
+        return $this->respond($data);
     }
 
     /**
@@ -41,19 +37,31 @@ class Gender extends ResourceController
      *
      * @return mixed
      */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Return the editable properties of a resource object
-     *
-     * @return mixed
-     */
-    public function edit($id = null)
-    {
-        //
+    public function create() {
+        $model = new GenderModel();
+        $data  = [
+            'name'   => $this->request->getVar('name'),
+        ];
+        $id    = $model->insert($data, true);
+        if (!$id) {
+            return (
+                $this
+                    ->fail(
+                        $model->errors(),
+                        $this->codes['invalid_data'],
+                        'Bad Request',
+                        'Gender could not be created'
+                    )
+            );
+        }
+        $response = [
+            'status'   => $this->codes['created'],
+            'error'    => null,
+            'messages' => [
+                'success' => 'Gender created successfully',
+            ],
+        ];
+        return $this->respondCreated($response);
     }
 
     /**
@@ -61,9 +69,26 @@ class Gender extends ResourceController
      *
      * @return mixed
      */
-    public function update($id = null)
-    {
-        //
+    public function update($id = null) {
+        if (!$id || !is_numeric($id)) {
+            return $this->fail('No identifier');
+        }
+        $data   = [
+            'name'   => $this->request->getVar('name'),
+        ];
+        $model  = new GenderModel();
+        $result = $model->update($id, $data);
+        if (!$result) {
+            return $this->fail('Gender could not be updated');
+        }
+        $response = [
+            'status'   => $this->codes['updated'],
+            'error'    => null,
+            'messages' => [
+                'success' => 'Gender updated successfully',
+            ],
+        ];
+        return $this->respond($response);
     }
 
     /**
@@ -71,8 +96,23 @@ class Gender extends ResourceController
      *
      * @return mixed
      */
-    public function delete($id = null)
-    {
-        //
+    public function delete($id = null) {
+        if (!$id || !is_numeric($id)) {
+            return $this->fail('No identifier');
+        }
+        $model = new GenderModel();
+        $data  = $model->where('id', $id)->delete($id);
+        if (!$data) {
+            return $this->failNotFound('No gender deleted');
+        }
+        $model->delete($id);
+        $response = [
+            'status'   => $this->codes['deleted'],
+            'error'    => null,
+            'messages' => [
+                'success' => 'Gender successfully deleted',
+            ],
+        ];
+        return $this->respondDeleted($response);
     }
 }
