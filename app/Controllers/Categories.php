@@ -13,9 +13,14 @@ class Categories extends ResourceController
      * @return mixed
      */
     public function index() {
-        $model = new CategoryModel();
-        $data  = $model->orderBy('id', 'DESC')->findAll();
-        return $this->respond($data);
+        try {
+            $model = new CategoryModel();
+            $data  = $model->orderBy('id', 'DESC')->findAll();
+            return $this->respond($data);
+        }
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
+        }
     }
 
     /**
@@ -24,12 +29,17 @@ class Categories extends ResourceController
      * @return mixed
      */
     public function show($id = null) {
-        $model = new CategoryModel();
-        $data  = $model->where('id', $id)->first();
-        if (empty($data)) {
-            return $this->failNotFound('No category found');
+        try {
+            $model = new CategoryModel();
+            $data  = $model->where('id', $id)->first();
+            if (empty($data)) {
+                return $this->failNotFound('No category found');
+            }
+            return $this->respond($data);
         }
-        return $this->respond($data);
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
+        }
     }
 
     /**
@@ -38,30 +48,35 @@ class Categories extends ResourceController
      * @return mixed
      */
     public function create() {
-        $model = new CategoryModel();
-        $data  = [
-            'name'   => $this->request->getVar('name'),
-        ];
-        $id    = $model->insert($data, true);
-        if (!$id) {
-            return (
-                $this
-                    ->fail(
-                        $model->errors(),
-                        $this->codes['invalid_data'],
-                        'Bad Request',
-                        'Category could not be created'
-                    )
-            );
+        try {
+            $model = new CategoryModel();
+            $data  = [
+                'name' => $this->request->getVar('name'),
+            ];
+            $id    = $model->insert($data, true);
+            if (!$id) {
+                return (
+                    $this
+                        ->fail(
+                            $model->errors(),
+                            $this->codes['invalid_data'],
+                            'Bad Request',
+                            'Category could not be created'
+                        )
+                );
+            }
+            $response = [
+                'status'   => $this->codes['created'],
+                'error'    => null,
+                'messages' => [
+                    'success' => 'Category created successfully',
+                ],
+            ];
+            return $this->respondCreated($response);
         }
-        $response = [
-            'status'   => $this->codes['created'],
-            'error'    => null,
-            'messages' => [
-                'success' => 'Category created successfully',
-            ],
-        ];
-        return $this->respondCreated($response);
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
+        }
     }
 
     /**
@@ -70,25 +85,30 @@ class Categories extends ResourceController
      * @return mixed
      */
     public function update($id = null) {
-        if (!$id || !is_numeric($id)) {
-            return $this->fail('No identifier');
+        try {
+            if (!$id || !is_numeric($id)) {
+                return $this->fail('No identifier');
+            }
+            $data   = [
+                'name' => $this->request->getVar('name'),
+            ];
+            $model  = new CategoryModel();
+            $result = $model->update($id, $data);
+            if (!$result) {
+                return $this->fail('Category could not be updated');
+            }
+            $response = [
+                'status'   => $this->codes['updated'],
+                'error'    => null,
+                'messages' => [
+                    'success' => 'Category updated successfully',
+                ],
+            ];
+            return $this->respond($response);
         }
-        $data   = [
-            'name'   => $this->request->getVar('name'),
-        ];
-        $model  = new CategoryModel();
-        $result = $model->update($id, $data);
-        if (!$result) {
-            return $this->fail('Category could not be updated');
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
         }
-        $response = [
-            'status'   => $this->codes['updated'],
-            'error'    => null,
-            'messages' => [
-                'success' => 'Category updated successfully',
-            ],
-        ];
-        return $this->respond($response);
     }
 
     /**
@@ -97,22 +117,27 @@ class Categories extends ResourceController
      * @return mixed
      */
     public function delete($id = null) {
-        if (!$id || !is_numeric($id)) {
-            return $this->fail('No identifier');
+        try {
+            if (!$id || !is_numeric($id)) {
+                return $this->fail('No identifier');
+            }
+            $model = new CategoryModel();
+            $data  = $model->where('id', $id)->delete($id);
+            if (!$data) {
+                return $this->failNotFound('No category deleted');
+            }
+            $model->delete($id);
+            $response = [
+                'status'   => $this->codes['deleted'],
+                'error'    => null,
+                'messages' => [
+                    'success' => 'Category successfully deleted',
+                ],
+            ];
+            return $this->respondDeleted($response);
         }
-        $model = new CategoryModel();
-        $data  = $model->where('id', $id)->delete($id);
-        if (!$data) {
-            return $this->failNotFound('No category deleted');
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
         }
-        $model->delete($id);
-        $response = [
-            'status'   => $this->codes['deleted'],
-            'error'    => null,
-            'messages' => [
-                'success' => 'Category successfully deleted',
-            ],
-        ];
-        return $this->respondDeleted($response);
     }
 }
