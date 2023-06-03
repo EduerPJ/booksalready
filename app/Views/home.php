@@ -28,8 +28,8 @@
         </div>
 
         <ul class="list-disc">
-          <li><a href="/books/create">Create Book</a></li>
-          <li><a href="/books">View Books</a></li>
+          <li><a href="/Book/create">Create Book</a></li>
+          <li><a href="/Book">View Book</a></li>
           <li><a href="/logout">Logout</a></li>
         </ul>
       </div>
@@ -40,7 +40,7 @@
       </div>
     <?php endif; ?>
 
-    <h2 class="text-xl font-bold mb-4">Last Published Books</h2>
+    <h2 class="text-xl font-bold mb-4">Last Published Book</h2>
 
     <ul class="list-grid grid-cols-2 gap-4">
 
