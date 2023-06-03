@@ -26,10 +26,10 @@ class Book extends ResourceController
     public function show($id = null) {
         $model = new BookModel();
         $data  = $model->where('id', $id)->first();
-        if (!empty($data)) {
-            return $this->respond($data);
+        if (empty($data)) {
+            return $this->failNotFound('No book found');
         }
-        return $this->failNotFound('No book found');
+        return $this->respond($data);
     }
 
     /**
