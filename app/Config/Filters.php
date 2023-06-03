@@ -31,6 +31,9 @@ class Filters extends BaseConfig
         'before' => [
             'session' => [
                 'except' => [
+                    'categories',
+                    'auth',
+                    'auth/jwt',
                     'login*',
                     'register',
                     'auth/a/*',
@@ -68,10 +71,7 @@ class Filters extends BaseConfig
      * 'isLoggedIn' => ['before' => ['account/*', 'profiles/*']]
      */
     public array $filters = [
-        'auth-rates' => [
-            'before' => [
-                'login*', 'register', 'auth/*'
-            ]
-        ]
+        'auth-rates' => ['before' => ['login*', 'register']],
+        'jwt'        => ['before' => ['api', 'api/*']],
     ];
 }

@@ -2,10 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Models\GenderModel;
+use App\Models\CategoryModel;
 use CodeIgniter\RESTful\ResourceController;
 
-class Gender extends ResourceController
+class Categories extends ResourceController
 {
     /**
      * Return an array of resource objects, themselves in array format
@@ -13,7 +13,7 @@ class Gender extends ResourceController
      * @return mixed
      */
     public function index() {
-        $model = new GenderModel();
+        $model = new CategoryModel();
         $data  = $model->orderBy('id', 'DESC')->findAll();
         return $this->respond($data);
     }
@@ -24,10 +24,10 @@ class Gender extends ResourceController
      * @return mixed
      */
     public function show($id = null) {
-        $model = new GenderModel();
+        $model = new CategoryModel();
         $data  = $model->where('id', $id)->first();
         if (empty($data)) {
-            return $this->failNotFound('No gender found');
+            return $this->failNotFound('No category found');
         }
         return $this->respond($data);
     }
@@ -38,7 +38,7 @@ class Gender extends ResourceController
      * @return mixed
      */
     public function create() {
-        $model = new GenderModel();
+        $model = new CategoryModel();
         $data  = [
             'name'   => $this->request->getVar('name'),
         ];
@@ -50,7 +50,7 @@ class Gender extends ResourceController
                         $model->errors(),
                         $this->codes['invalid_data'],
                         'Bad Request',
-                        'Gender could not be created'
+                        'Category could not be created'
                     )
             );
         }
@@ -58,7 +58,7 @@ class Gender extends ResourceController
             'status'   => $this->codes['created'],
             'error'    => null,
             'messages' => [
-                'success' => 'Gender created successfully',
+                'success' => 'Category created successfully',
             ],
         ];
         return $this->respondCreated($response);
@@ -76,16 +76,16 @@ class Gender extends ResourceController
         $data   = [
             'name'   => $this->request->getVar('name'),
         ];
-        $model  = new GenderModel();
+        $model  = new CategoryModel();
         $result = $model->update($id, $data);
         if (!$result) {
-            return $this->fail('Gender could not be updated');
+            return $this->fail('Category could not be updated');
         }
         $response = [
             'status'   => $this->codes['updated'],
             'error'    => null,
             'messages' => [
-                'success' => 'Gender updated successfully',
+                'success' => 'Category updated successfully',
             ],
         ];
         return $this->respond($response);
@@ -100,17 +100,17 @@ class Gender extends ResourceController
         if (!$id || !is_numeric($id)) {
             return $this->fail('No identifier');
         }
-        $model = new GenderModel();
+        $model = new CategoryModel();
         $data  = $model->where('id', $id)->delete($id);
         if (!$data) {
-            return $this->failNotFound('No gender deleted');
+            return $this->failNotFound('No category deleted');
         }
         $model->delete($id);
         $response = [
             'status'   => $this->codes['deleted'],
             'error'    => null,
             'messages' => [
-                'success' => 'Gender successfully deleted',
+                'success' => 'Category successfully deleted',
             ],
         ];
         return $this->respondDeleted($response);

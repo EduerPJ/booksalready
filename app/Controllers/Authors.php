@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\AuthorModel;
 use CodeIgniter\RESTful\ResourceController;
 
-class Author extends ResourceController
+class Authors extends ResourceController
 {
     /**
      * Return an array of resource objects, themselves in array format

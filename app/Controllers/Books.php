@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\BookModel;
 use CodeIgniter\RESTful\ResourceController;
 
-class Book extends ResourceController
+class Books extends ResourceController
 {
     /**
      * Return an array of resource objects, themselves in array format
