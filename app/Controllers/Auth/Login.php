@@ -31,7 +31,9 @@ class Login extends BaseController
         }
 
         // Get the credentials for login
-        $credentials             = $this->request->getJsonVar(setting('Auth.validFields'));
+        $credentials = $this->request->getJSON(true);
+        $validFields = implode(',', setting('Auth.validFields'));
+
         $credentials             = array_filter($credentials);
         $credentials['password'] = $this->request->getJsonVar('password');
 
@@ -45,7 +47,7 @@ class Login extends BaseController
         if (!$result->isOK()) {
             // @TODO Record a failed login attempt
 
-            return $this->failUnauthorized($result->reason());
+            return $this->fail($result->reason(), $this->codes['unauthorized']);
         }
 
         // Credentials match.

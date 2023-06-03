@@ -30,7 +30,7 @@ class AuthJWT extends ShieldAuthJWT
      * @var array<string, string>
      */
     public array $defaultClaims = [
-        'iss' => 'http://localhost:8080/',
+        'iss' => 'http://localhost:8080/api/v1',
     ];
 
     /**
@@ -47,11 +47,11 @@ class AuthJWT extends ShieldAuthJWT
         'default' => [
             // Symmetric Key
             [
-                'kid'    => 'clave', // Key ID. Optional if you have only one key.
+                // 'kid'    => 'clave', // Key ID. Optional if you have only one key.
                 'alg'    => 'HS256', // algorithm.
                 // Set secret random string. Needs at least 256 bits for HS256 algorithm.
                 // E.g., $ php -r 'echo base64_encode(random_bytes(32));'
-                'secret' => 'PmTKlhHFNvbex889UZDKSWjZXyy9MhxrjgeNbxhh5pA=',
+                'secret' => '4vxydeDMZZsMQPnn5ZZXQommqBTtkdPdPVLmNd6Pi/A=',
             ],
             // Asymmetric Key
             // [

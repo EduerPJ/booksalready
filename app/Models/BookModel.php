@@ -10,7 +10,7 @@ class BookModel extends Model
     protected $table = 'books';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType = 'json';
+    protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     // Permitted fields

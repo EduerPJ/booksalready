@@ -31,12 +31,11 @@ class Filters extends BaseConfig
         'before' => [
             'session' => [
                 'except' => [
-                    'categories',
-                    'auth',
-                    'auth/jwt',
+                    'api/v1/*',
                     'login*',
                     'register',
-                    'auth/a/*',
+                    'auth/jwt',
+                    // 'auth/a/*',
                 ],
             ],
             // 'honeypot',
