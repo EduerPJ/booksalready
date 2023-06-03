@@ -13,9 +13,14 @@ class Books extends ResourceController
      * @return mixed
      */
     public function index() {
-        $model = new BookModel();
-        $data  = $model->orderBy('id', 'DESC')->findAll();
-        return $this->respond($data);
+        try {
+            $model = new BookModel();
+            $data  = $model->orderBy('id', 'DESC')->findAll();
+            return $this->respond($data);
+        }
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
+        }
     }
 
     /**
@@ -24,12 +29,17 @@ class Books extends ResourceController
      * @return mixed
      */
     public function show($id = null) {
-        $model = new BookModel();
-        $data  = $model->where('id', $id)->first();
-        if (empty($data)) {
-            return $this->failNotFound('No book found');
+        try {
+            $model = new BookModel();
+            $data  = $model->where('id', $id)->first();
+            if (empty($data)) {
+                return $this->failNotFound('No book found');
+            }
+            return $this->respond($data);
         }
-        return $this->respond($data);
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
+        }
     }
 
     /**
@@ -38,36 +48,41 @@ class Books extends ResourceController
      * @return mixed
      */
     public function create() {
-        $model = new BookModel();
-        $data  = [
-            'author_id'   => $this->request->getVar('author_id'),
-            'title'       => $this->request->getVar('title'),
-            'description' => $this->request->getVar('description'),
-            'image'       => $this->request->getVar('image'),
-            'gender_id'   => $this->request->getVar('gender_id'),
-            'category_id' => $this->request->getVar('category_id'),
-            'language'    => $this->request->getVar('language'),
-        ];
-        $id    = $model->insert($data, true);
-        if (!$id) {
-            return (
-                $this
-                    ->fail(
-                        $model->errors(),
-                        $this->codes['invalid_data'],
-                        'Bad Request',
-                        'Book could not be created'
-                    )
-            );
+        try {
+            $model = new BookModel();
+            $data  = [
+                'author_id'   => $this->request->getVar('author_id'),
+                'title'       => $this->request->getVar('title'),
+                'description' => $this->request->getVar('description'),
+                'image'       => $this->request->getVar('image'),
+                'gender_id'   => $this->request->getVar('gender_id'),
+                'category_id' => $this->request->getVar('category_id'),
+                'language'    => $this->request->getVar('language'),
+            ];
+            $id    = $model->insert($data, true);
+            if (!$id) {
+                return (
+                    $this
+                        ->fail(
+                            $model->errors(),
+                            $this->codes['invalid_data'],
+                            'Bad Request',
+                            'Book could not be created'
+                        )
+                );
+            }
+            $response = [
+                'status'   => $this->codes['created'],
+                'error'    => null,
+                'messages' => [
+                    'success' => 'Book created successfully'
+                ],
+            ];
+            return $this->respondCreated($response);
         }
-        $response = [
-            'status'   => $this->codes['created'],
-            'error'    => null,
-            'messages' => [
-                'success' => 'Book created successfully'
-            ],
-        ];
-        return $this->respondCreated($response);
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
+        }
     }
 
     /**
@@ -76,31 +91,33 @@ class Books extends ResourceController
      * @return mixed
      */
     public function update($id = null) {
-        if (!$id || !is_numeric($id)) {
-            return $this->fail('No identifier');
+        try {
+            if (!$id || !is_numeric($id)) {
+                return $this->fail('No identifier');
+            }
+            $data  = [
+                'author_id'   => $this->request->getVar('author_id'),
+                'title'       => $this->request->getVar('title'),
+                'description' => $this->request->getVar('description'),
+                'image'       => $this->request->getVar('image'),
+                'gender_id'   => $this->request->getVar('gender_id'),
+                'category_id' => $this->request->getVar('category_id'),
+                'language'    => $this->request->getVar('language'),
+            ];
+            $model = new BookModel();
+            $model->update($id, $data);
+            $response = [
+                'status'   => $this->codes['updated'],
+                'error'    => null,
+                'messages' => [
+                    'success' => 'Book updated successfully',
+                ],
+            ];
+            return $this->respond($response);
         }
-        $data   = [
-            'author_id'   => $this->request->getVar('author_id'),
-            'title'       => $this->request->getVar('title'),
-            'description' => $this->request->getVar('description'),
-            'image'       => $this->request->getVar('image'),
-            'gender_id'   => $this->request->getVar('gender_id'),
-            'category_id' => $this->request->getVar('category_id'),
-            'language'    => $this->request->getVar('language'),
-        ];
-        $model  = new BookModel();
-        $result = $model->update($id, $data);
-        if (!$result) {
-            return $this->fail('Book could not be updated');
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
         }
-        $response = [
-            'status'   => $this->codes['updated'],
-            'error'    => null,
-            'messages' => [
-                'success' => 'Book updated successfully',
-            ],
-        ];
-        return $this->respond($response);
     }
 
     /**
@@ -109,22 +126,27 @@ class Books extends ResourceController
      * @return mixed
      */
     public function delete($id = null) {
-        if (!$id || !is_numeric($id)) {
-            return $this->fail('No identifier');
+        try {
+            if (!$id || !is_numeric($id)) {
+                return $this->fail('No identifier');
+            }
+            $model = new BookModel();
+            $data  = $model->where('id', $id)->delete($id);
+            if (!$data) {
+                return $this->failNotFound('No book deleted');
+            }
+            $model->delete($id);
+            $response = [
+                'status'   => $this->codes['deleted'],
+                'error'    => null,
+                'messages' => [
+                    'success' => 'Book successfully deleted',
+                ],
+            ];
+            return $this->respondDeleted($response);
         }
-        $model = new BookModel();
-        $data  = $model->where('id', $id)->delete($id);
-        if (!$data) {
-            return $this->failNotFound('No book deleted');
+        catch (\Throwable $th) {
+            return $this->failServerError($th->getMessage(), $th->getCode());
         }
-        $model->delete($id);
-        $response = [
-            'status'   => $this->codes['deleted'],
-            'error'    => null,
-            'messages' => [
-                'success' => 'Book successfully deleted',
-            ],
-        ];
-        return $this->respondDeleted($response);
     }
 }
